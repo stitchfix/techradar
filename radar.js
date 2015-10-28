@@ -74,6 +74,7 @@ var total_index = 1;
 
 //TODO: Super fragile: re-order the items, by radius, in order to logically group by the rings.
 for (var i = 0; i < radar_data.length; i++) {
+    var url = radar_data[i].url;
     //adjust top by the number of headings.
     if (lastQuadrant != radar_data[i].quadrant) {
         radar.add(pv.Label)         
@@ -82,15 +83,24 @@ for (var i = 0; i < radar_data.length; i++) {
             .text(  radar_data[i].quadrant )		 
             .strokeStyle( radar_data[i].color )
             .fillStyle( radar_data[i].color )                    
-            .font(quadrantFontSize + "px sans-serif");
+            .font(quadrantFontSize + "px lato, 'Helvetica Neue', Helvetica, Arial, sans-serif")
+        .add( pv.Dot )            
+            .def("i", radar_data[i].top - quadrantFontSize + ( spacer  + (spacer / 2)))
+            .top( function() { return ( this.i() + (this.index * fontSize) );} )   
+            .left( radar_data[i].left - spacer )
+            .shape( "square")
+            .cursor( "pointer" )
+            .event("click", function(d) { self.location =  url })
+            .anchor("right")                
          
         lastQuadrant = radar_data[i].quadrant;
 
     }
 
     var itemsByStage = _.groupBy(radar_data[i].items, function(item) {return Math.floor(item.pc.r / 100)});
+    window.itemsByStage = itemsByStage;
     var offsetIndex = 0;
-    for (var stageIdx in _(itemsByStage).keys()) {
+    for (var stageIdx in _(itemsByStage).keys().value()) {
 
         if (stageIdx > 0) {
             offsetIndex = offsetIndex + itemsByStage[stageIdx-1].length + 1; 
@@ -103,7 +113,7 @@ for (var i = 0; i < radar_data.length; i++) {
             .text( radar_arcs[stageIdx].name)
             .strokeStyle( '#cccccc' )
             .fillStyle( '#cccccc')                    
-            .font(headingFontSize + "px Courier New");
+            .font(headingFontSize + "px lato, 'Helvetica Neue', Helvetica, Arial, sans-serif");
 
     radar.add(pv.Label)             
         .left( radar_data[i].left )         
